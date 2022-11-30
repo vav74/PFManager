@@ -1,5 +1,5 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opencsv.exceptions.CsvException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +9,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -17,14 +19,22 @@ public class StatTest {
     static Stat stat;
 
     @BeforeAll
-    static void setUpApp() throws IOException, CsvException {
+    static void setUpApp() throws IOException, CsvException, ClassNotFoundException {
         stat = new Stat();
+        stat.purchaseList=new ArrayList<>();
+        System.out.println("Записи очищены");
+        Stat.file=new File("TestFile.bin");
+    }
+
+    @AfterAll
+    static void endApp(){
+        System.out.println(Stat.file.getName()+" удален: "+ Stat.file.delete());
     }
 
     @ParameterizedTest
     @MethodSource("getArguments")
-    @DisplayName("Тест maxCategoryUpd")
-    void getMaxCatTest(String p, MaxCat expected) throws JsonProcessingException {
+    @DisplayName("Тест getMaxCat")
+    void getMaxCatTest(String p, MaxCat expected) throws IOException {
         stat.addNewPurchase(p);
         MaxCat result = stat.getMaxCat();
         Assertions.assertEquals(result, expected);

@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
@@ -6,36 +5,38 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Stat {
-    private static Map<String, String> mapFromTsvFile;
-    private static List<Purchase> purchaseList;
+    private final Map<String, String> categoriesTsv;
+    protected List<Purchase> purchaseList;
+    static public File file;
 
-    public Stat() throws IOException, CsvException {
-        mapFromTsvFile = new HashMap<>();
+    public Stat() throws IOException, CsvException, ClassNotFoundException {
+        file = new File("data.bin");
+        categoriesTsv = new HashMap<>();
         purchaseList = new ArrayList<>();
+        if (file.exists()) {
+            loadPurchases();
+        }
         readFileTSV();
     }
 
-    public static void readFileTSV() throws IOException, CsvException {
+    public void readFileTSV() throws IOException, CsvException {
         CSVParser parser = new CSVParserBuilder().withSeparator('\t').build();
         try (CSVReader reader = new CSVReaderBuilder(new FileReader("categories.tsv")).withCSVParser(parser).build()) {
             List<String[]> allData = reader.readAll();
-            allData.forEach(v -> mapFromTsvFile.put(v[0], v[1]));
+            allData.forEach(v -> categoriesTsv.put(v[0], v[1]));
         }
     }
 
-    public void addNewPurchase(String p) throws JsonProcessingException {
+    public void addNewPurchase(String p) throws IOException {
         Purchase purchase = new ObjectMapper().readValue(p, Purchase.class);
-        purchase.setCat(mapFromTsvFile.getOrDefault(purchase.getTitle(), "other"));
+        purchase.setCat(categoriesTsv.getOrDefault(purchase.getTitle(), "other"));
         purchaseList.add(purchase);
+        safePurchases();
     }
 
     public MaxCat getMaxCat() {
@@ -46,6 +47,25 @@ public class Stat {
                 .orElse(null);
         assert maxCategoryEntry != null;
         return new MaxCat(new MaxCategory(maxCategoryEntry.getKey(), maxCategoryEntry.getValue()));
+    }
+
+    public void safePurchases() throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(file);
+             BufferedOutputStream bos = new BufferedOutputStream(fos);
+             ObjectOutputStream oos = new ObjectOutputStream(bos)
+        ) {
+            oos.writeObject(purchaseList);
+            oos.flush();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void loadPurchases() throws IOException, ClassNotFoundException {
+        try (FileInputStream fis = new FileInputStream(file);
+             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(fis))) {
+            purchaseList = (ArrayList<Purchase>) ois.readObject();
+            System.out.println("Из файла " + file.getName() + " загружено " + purchaseList.size() + " записей");
+        }
     }
 
 }
