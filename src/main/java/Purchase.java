@@ -1,6 +1,11 @@
 import com.google.gson.annotations.Expose;
 
-public class Purchase{
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Purchase implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     @Expose
     private String title;
     @Expose

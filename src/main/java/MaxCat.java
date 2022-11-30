@@ -1,4 +1,4 @@
-public record MaxCat(MaxCategory maxCategory) {
 
+public record MaxCat(MaxCategory maxCategory) {
 
 }

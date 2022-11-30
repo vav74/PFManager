@@ -10,7 +10,7 @@ import java.net.Socket;
 
 public class Server {
     static Stat stat;
-    public static void main(String[] args) throws IOException, CsvException {
+    public static void main(String[] args) throws IOException, CsvException, ClassNotFoundException {
         stat = new Stat();
         try (ServerSocket serverSocket = new ServerSocket(8989)) { // стартуем сервер один(!) раз
             while (true) { // в цикле(!) принимаем подключения

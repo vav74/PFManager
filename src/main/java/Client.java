@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Client {
+    static final int PURCHASES_TO_GENERATE = 50;
     public static void main(String[] args) throws IOException, CsvException {
         String host = "localhost";
         int port = 8989;
@@ -48,7 +49,7 @@ public class Client {
         List<Purchase> purchases = new ArrayList<>();
         int minDay = (int) LocalDate.of(2022, 10, 20).toEpochDay();
         int maxDay = (int) LocalDate.of(2022, 11, 20).toEpochDay();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < PURCHASES_TO_GENERATE; i++) {
             long randomDay = minDay + random.nextInt(maxDay - minDay);
             purchases.add(new Purchase(
                     titles.get(random.nextInt(titles.size())),
@@ -56,6 +57,7 @@ public class Client {
                     Math.round((random.nextInt(1000)+10.0f) / 10) * 10)
             );
         }
+        System.out.println("Сгенерировано "+ PURCHASES_TO_GENERATE + " запросов");
         return purchases;
     }
 }
