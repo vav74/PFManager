@@ -40,13 +40,57 @@ public class Stat {
     }
 
     public MaxCat getMaxCat() {
-        Map.Entry<String, Integer> maxCategoryEntry = purchaseList.stream()
+        Purchase last = purchaseList.get(purchaseList.size() - 1);
+        String lastYear = last.getDate().substring(0, 4);
+        String lastMonth = last.getDate().substring(0, 7);
+        String lastDay = last.getDate();
+        return new MaxCat(maxCategory(),
+                maxYearCategory(lastYear),
+                maxMonthCategory(lastMonth),
+                maxDayCategory(lastDay));
+    }
+
+    public MaxCategory maxCategory() {
+        Map.Entry<String, Integer> entry = purchaseList.stream()
                 .collect(Collectors.groupingBy(Purchase::getCat, Collectors.summingInt(Purchase::getSum)))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .orElse(null);
-        assert maxCategoryEntry != null;
-        return new MaxCat(new MaxCategory(maxCategoryEntry.getKey(), maxCategoryEntry.getValue()));
+        assert entry != null;
+        return new MaxCategory(entry.getKey(), entry.getValue());
+    }
+
+    public MaxYearCategory maxYearCategory(String lastYear) {
+        Map.Entry<String, Integer> entry = purchaseList.stream()
+                .filter(x -> x.getDate().startsWith(lastYear))
+                .collect(Collectors.groupingBy(Purchase::getCat, Collectors.summingInt(Purchase::getSum)))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElse(null);
+        assert entry != null;
+        return new MaxYearCategory(entry.getKey(), entry.getValue());
+    }
+
+    public MaxMonthCategory maxMonthCategory(String lastMonth) {
+        Map.Entry<String, Integer> entry = purchaseList.stream()
+                .filter(x -> x.getDate().startsWith(lastMonth))
+                .collect(Collectors.groupingBy(Purchase::getCat, Collectors.summingInt(Purchase::getSum)))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElse(null);
+        assert entry != null;
+        return new MaxMonthCategory(entry.getKey(), entry.getValue());
+    }
+
+    public MaxDayCategory maxDayCategory(String lastDay) {
+        Map.Entry<String, Integer> maxCategoryEntryDay = purchaseList.stream()
+                .filter(x -> x.getDate().equals(lastDay))
+                .collect(Collectors.groupingBy(Purchase::getCat, Collectors.summingInt(Purchase::getSum)))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElse(null);
+        assert maxCategoryEntryDay != null;
+        return new MaxDayCategory(maxCategoryEntryDay.getKey(), maxCategoryEntryDay.getValue());
     }
 
     public void safePurchases() throws IOException {
@@ -67,5 +111,4 @@ public class Stat {
             System.out.println("Из файла " + file.getName() + " загружено " + purchaseList.size() + " записей");
         }
     }
-
 }

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Client {
-    static final int PURCHASES_TO_GENERATE = 50;
+    static final int PURCHASES_TO_GENERATE = 10;
     public static void main(String[] args) throws IOException, CsvException {
         String host = "localhost";
         int port = 8989;
@@ -58,6 +58,7 @@ public class Client {
             );
         }
         System.out.println("Сгенерировано "+ PURCHASES_TO_GENERATE + " запросов");
+        System.out.println(purchases); //for debug
         return purchases;
     }
 }
