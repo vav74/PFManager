@@ -8,10 +8,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server {
-    static Stat stat;
+public class Main {
     public static void main(String[] args) throws IOException, CsvException, ClassNotFoundException {
-        stat = new Stat();
+        Stat stat = new Stat();
         try (ServerSocket serverSocket = new ServerSocket(8989)) { // стартуем сервер один(!) раз
             while (true) { // в цикле(!) принимаем подключения
                 try (
@@ -22,13 +21,6 @@ public class Server {
                 ) {
                     String request = in.readLine();
                     if (request.equals("ShutDown")) {
-                        stat=null;
-                        inputStreamReader.close();
-                        in.close();
-                        out.flush();
-                        out.close();
-                        socket.close();
-                        serverSocket.close();
                         System.out.println("Stopped");
                         break;
                     }
